@@ -18,6 +18,7 @@
     <string name="button_logging">Logging</string>
     <string name="button_check_vin">VIN</string>
     <string name="button_get_ecu_info">Get Ecu Info</string>
+    <string name="button_flash_calibration">Flash Calibration</string>
     <string name="button_clear_dtc">DTC</string>
     <string name="button_back">Back</string>
     <string name="button_stop">Stop</string>

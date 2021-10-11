@@ -51,10 +51,17 @@ class FlashingFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        view.findViewById<Button>(R.id.buttonCheckVIN).setOnClickListener {
+        //view.findViewById<Button>(R.id.buttonCheckVIN).setOnClickListener {
+        //    // Get the message bytes and tell the BluetoothChatService to write
+        //    val serviceIntent = Intent(context, BTService::class.java)
+        //    serviceIntent.action = BT_DO_CHECK_VIN.toString()
+        //    startForegroundService(this.requireContext(), serviceIntent)
+        //}
+
+        view.findViewById<Button>(R.id.buttonFlashCalibration).setOnClickListener {
             // Get the message bytes and tell the BluetoothChatService to write
             val serviceIntent = Intent(context, BTService::class.java)
-            serviceIntent.action = BT_DO_CHECK_VIN.toString()
+            serviceIntent.action = BT_DO_FLASH_ECU_CAL.toString()
             startForegroundService(this.requireContext(), serviceIntent)
         }
 
@@ -85,6 +92,7 @@ class FlashingFragment : Fragment() {
         filter.addAction(MESSAGE_READ_VIN.toString())
         filter.addAction(MESSAGE_READ_DTC.toString())
         filter.addAction(MESSAGE_ECU_INFO.toString())
+        filter.addAction(MESSAGE_FLASH_RESPONSE.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -155,7 +163,7 @@ class FlashingFragment : Fragment() {
                                 name = key
                             }
                         }
-                        
+
                         mViewModel.mConversationArrayAdapter?.add("$name: $value")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!

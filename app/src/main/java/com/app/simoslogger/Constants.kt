@@ -30,7 +30,8 @@ val MESSAGE_READ_VIN        = 5
 val MESSAGE_READ_DTC        = 6
 val MESSAGE_READ_LOG        = 7
 val MESSAGE_WRITE_LOG       = 8
-val MESSAGE_ECU_INFO    = 9
+val MESSAGE_ECU_INFO        = 9
+val MESSAGE_FLASH_RESPONSE  = 10
 
 // Constants that indicate the current connection state
 val STATE_ERROR         = -1 // we're doing nothing
@@ -45,6 +46,7 @@ val TASK_LOGGING        = 2 // uploading to remote device
 val TASK_RD_VIN         = 3 // download from remote device
 val TASK_CLEAR_DTC      = 4
 val TASK_GET_ECU_INFO   = 5
+val TASK_FLASH_ECU_CAL  = 6
 
 val TASK_END_DELAY      = 1000
 val TASK_END_TIMEOUT    = 5000
@@ -68,6 +70,7 @@ val BT_DO_CHECK_PID     = 5
 val BT_DO_STOP_PID      = 6
 val BT_DO_CLEAR_DTC     = 7
 val BT_DO_GET_ECU_INFO  = 8
+val BT_DO_FLASH_ECU_CAL = 9
 
 //BLE settings
 val BLE_DEVICE_NAME      = "BLE_TO_ISOTP"

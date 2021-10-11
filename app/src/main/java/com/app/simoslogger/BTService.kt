@@ -117,6 +117,9 @@ class BTService: Service() {
             BT_DO_CLEAR_DTC.toString() -> {
                 mConnectionThread?.setTaskState(TASK_CLEAR_DTC)
             }
+            BT_DO_FLASH_ECU_CAL.toString() -> {
+                mConnectionThread?.setTaskState(TASK_FLASH_ECU_CAL)
+            }
         }
 
         // If we get killed, after returning from here, restart
@@ -650,12 +653,14 @@ class BTService: Service() {
                                 //hope it's a 62 response...
                                 if(ECUInfo[0] == 0x62.toByte()){
                                     val intentMessage = Intent(MESSAGE_ECU_INFO.toString())
-                                    val pid = ECUInfo.copyOfRange(0,2)
+
 
                                     intentMessage.putExtra("readBuffer", ECUInfo)
                                     sendBroadcast(intentMessage)
 
                                 }
+
+
                             }
                             TASK_CLEAR_DTC -> {
                                 //Broadcast a new message
@@ -664,6 +669,14 @@ class BTService: Service() {
                                 sendBroadcast(intentMessage)
 
                                 setTaskState(TASK_NONE)
+                            }
+                            TASK_FLASH_ECU_CAL -> {
+                                val response = buff!!.copyOfRange(8, buff.size)
+                                val intentMessage = Intent(MESSAGE_READ.toString())
+
+                                intentMessage.putExtra("readBuffer", response)
+                                sendBroadcast(intentMessage)
+
                             }
                             TASK_LOGGING -> {
                                 //Process frame
@@ -843,29 +856,66 @@ class BTService: Service() {
                     mWriteQueue.add(buf)
                 }
                 TASK_GET_ECU_INFO -> {
-                    val bleHeader = BLEHeader()
-                    bleHeader.cmdSize = 3
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
-
-                    ECU_INFO_LIST.forEach { key, value ->
-                        val dataBytes = byteArrayOf(0x22.toByte()) + value
-                        val buf = bleHeader.toByteArray() + dataBytes
-                        mWriteQueue.add(buf)
-                    }
+                    getECUInfo()
                 }
                 TASK_CLEAR_DTC -> {
-                    //Send clear request
-                    val bleHeader = BLEHeader()
-                    bleHeader.rxID = 0x7E8
-                    bleHeader.txID = 0x700
-                    bleHeader.cmdSize = 1
-                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
-                    val dataBytes = byteArrayOf(0x04.toByte())
-                    val buf = bleHeader.toByteArray() + dataBytes
-                    mWriteQueue.add(buf)
+                    clearDTC()
                 }
+                TASK_FLASH_ECU_CAL -> {
+                    //Get the box code from the ecu
+                    //read in the file that we're flashing
+                    //compare the box code to the bin, make sure it matches
+                    //compress/encrypt
+
+                    clearDTC()
+                    //Open extended diagnostic session
+                    //Check programming precondition, routine 0x0203
+                    //Tester present
+                    //Pass SA2SeedKey unlock_security_access(17)
+                    //Tester present
+                    //Write workshop tool log
+                    //  0xF15A = 0x20, 0x7, 0x17, 0x42,0x04,0x20,0x42,0xB1,0x3D,
+                    //Tester present
+                    //FLASH BLOCK
+                    //  erase block 0x01 0x05
+                    //  request download
+                    //  transfer data in blocks
+                    //  request transfer exit
+                    //  tester present
+                    //  run checksum start_routine(0x0202, data=bytes(checksum_data))
+                    //Verify programming dependencies, routine 0xFF01
+                    //Tester present
+                    //Reset ECU
+                }
+
             }
         }
+
+        private fun clearDTC(){
+            //Send clear request
+            val bleHeader = BLEHeader()
+            bleHeader.rxID = 0x7E8
+            bleHeader.txID = 0x700
+            bleHeader.cmdSize = 1
+            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
+            val dataBytes = byteArrayOf(0x04.toByte())
+            val buf = bleHeader.toByteArray() + dataBytes
+            mWriteQueue.add(buf)
+        }
+
+        private fun getECUInfo(){
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = 3
+            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
+
+            ECU_INFO_LIST.forEach { key, value ->
+                val dataBytes = byteArrayOf(0x22.toByte()) + value
+                val buf = bleHeader.toByteArray() + dataBytes
+                mWriteQueue.add(buf)
+            }
+        }
+
+
     }
 }
 
