@@ -30,6 +30,7 @@ val MESSAGE_READ_VIN        = 5
 val MESSAGE_READ_DTC        = 6
 val MESSAGE_READ_LOG        = 7
 val MESSAGE_WRITE_LOG       = 8
+val MESSAGE_ECU_INFO    = 9
 
 // Constants that indicate the current connection state
 val STATE_ERROR         = -1 // we're doing nothing
@@ -38,11 +39,12 @@ val STATE_CONNECTING    = 1 // now initiating an outgoing connection
 val STATE_CONNECTED     = 2 // now connected to a remote device
 
 //List of available tasks
-val TASK_NONE       = 0
-val TASK_FLASHING   = 1
-val TASK_LOGGING    = 2 // uploading to remote device
-val TASK_RD_VIN     = 3 // download from remote device
-val TASK_CLEAR_DTC  = 4
+val TASK_NONE           = 0
+val TASK_FLASHING       = 1
+val TASK_LOGGING        = 2 // uploading to remote device
+val TASK_RD_VIN         = 3 // download from remote device
+val TASK_CLEAR_DTC      = 4
+val TASK_GET_ECU_INFO   = 5
 
 val TASK_END_DELAY      = 1000
 val TASK_END_TIMEOUT    = 5000
@@ -65,6 +67,7 @@ val BT_DO_CHECK_VIN     = 4
 val BT_DO_CHECK_PID     = 5
 val BT_DO_STOP_PID      = 6
 val BT_DO_CLEAR_DTC     = 7
+val BT_DO_GET_ECU_INFO  = 8
 
 //BLE settings
 val BLE_DEVICE_NAME      = "BLE_TO_ISOTP"
@@ -175,6 +178,25 @@ val COLOR_ST_CONNECTING = 7
 val COLOR_ST_CONNECTED  = 8
 val COLOR_ST_LOGGING    = 9
 val COLOR_ST_WRITING    = 10
+
+//Normal list used for get ECU info:
+val ECU_INFO_LIST   =   mapOf(
+    "VIN" to byteArrayOf(0xf1.toByte(), 0x90.toByte()),
+    "ASAM/ODX File Identifier" to byteArrayOf(0xF1.toByte(), 0x9E.toByte()),
+    "ASAM/ODX File Version" to byteArrayOf(0xF1.toByte(), 0xA2.toByte()),
+    "Vehicle Speed" to byteArrayOf(0xF4.toByte(), 0x0D.toByte()),
+    "Calibration Version Numbers" to byteArrayOf(0xF8.toByte(), 0x06.toByte()),
+    "VW Spare part Number" to byteArrayOf(0xF1.toByte(), 0x87.toByte()),
+    "VW ASW Version" to byteArrayOf(0xF1.toByte(), 0x89.toByte()),
+    "ECU Hardware Number" to byteArrayOf(0xF1.toByte(), 0x91.toByte()),
+    "ECU Hardware Version Number" to byteArrayOf(0xF1.toByte(), 0xA3.toByte()),
+    "System Name/Engine type" to byteArrayOf(0xF1.toByte(), 0x97.toByte()),
+    "Engine Code" to byteArrayOf(0xF1.toByte(), 0xAD.toByte()),
+    "VW Workshop Name" to byteArrayOf(0xF1.toByte(), 0xAA.toByte()),
+    "State of Flash Mem" to byteArrayOf(0x04.toByte(), 0x05.toByte()),
+    "VW Coding Value" to byteArrayOf(0x06.toByte(), 0x00.toByte())
+)
+
 
 //Additional properties
 infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)

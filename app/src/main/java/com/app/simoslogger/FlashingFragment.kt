@@ -15,6 +15,7 @@ import android.widget.*
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import java.util.Arrays
 
 
 class FlashingViewModel : ViewModel() {
@@ -57,6 +58,13 @@ class FlashingFragment : Fragment() {
             startForegroundService(this.requireContext(), serviceIntent)
         }
 
+        view.findViewById<Button>(R.id.buttonGetECUInfo).setOnClickListener {
+            // Get the message bytes and tell the BluetoothChatService to write
+            val serviceIntent = Intent(context, BTService::class.java)
+            serviceIntent.action = BT_DO_GET_ECU_INFO.toString()
+            startForegroundService(this.requireContext(), serviceIntent)
+        }
+
         view.findViewById<Button>(R.id.buttonClearDTC).setOnClickListener {
             // Get the message bytes and tell the BluetoothChatService to write
             val serviceIntent = Intent(context, BTService::class.java)
@@ -76,6 +84,7 @@ class FlashingFragment : Fragment() {
         //filter.addAction(MESSAGE_READ.toString())
         filter.addAction(MESSAGE_READ_VIN.toString())
         filter.addAction(MESSAGE_READ_DTC.toString())
+        filter.addAction(MESSAGE_ECU_INFO.toString())
         this.activity?.registerReceiver(mBroadcastReceiver, filter)
     }
 
@@ -130,6 +139,28 @@ class FlashingFragment : Fragment() {
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
                         btMessage.setSelection(btMessage.adapter.count - 1)
+                    }
+                }
+                MESSAGE_ECU_INFO.toString() -> {
+                    val readBuff = intent.getByteArrayExtra("readBuffer")
+
+                    if(readBuff != null){
+                        val pid = readBuff.copyOfRange(1,3)
+                        val value = readBuff.copyOfRange(2, readBuff.size)
+
+                        var name: String = ""
+
+                        ECU_INFO_LIST.forEach { key, value ->
+                            if (Arrays.equals(pid, value)) {
+                                name = key
+                            }
+                        }
+
+                        val readString = String(readBuff)
+                        mViewModel.mConversationArrayAdapter?.add("$name: $readString")
+
+                        val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
+                        btMessage.setSelection(btMessage.adapter.count -1)
                     }
                 }
             }

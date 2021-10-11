@@ -105,6 +105,9 @@ class BTService: Service() {
             BT_DO_CHECK_VIN.toString() -> {
                 mConnectionThread?.setTaskState(TASK_RD_VIN)
             }
+            BT_DO_GET_ECU_INFO.toString() ->{
+                mConnectionThread?.setTaskState(TASK_GET_ECU_INFO)
+            }
             BT_DO_CHECK_PID.toString() -> {
                 mConnectionThread?.setTaskState(TASK_LOGGING)
             }
@@ -641,6 +644,19 @@ class BTService: Service() {
 
                                 setTaskState(TASK_NONE)
                             }
+                            TASK_GET_ECU_INFO ->{
+                                val ECUInfo = buff!!.copyOfRange(8, buff.size)
+
+                                //hope it's a 62 response...
+                                if(ECUInfo[0] == 0x62.toByte()){
+                                    val intentMessage = Intent(MESSAGE_ECU_INFO.toString())
+                                    val pid = ECUInfo.copyOfRange(0,2)
+
+                                    intentMessage.putExtra("readBuffer", ECUInfo)
+                                    sendBroadcast(intentMessage)
+
+                                }
+                            }
                             TASK_CLEAR_DTC -> {
                                 //Broadcast a new message
                                 val intentMessage = Intent(MESSAGE_READ_DTC.toString())
@@ -825,6 +841,17 @@ class BTService: Service() {
                     val dataBytes = byteArrayOf(0x22.toByte(), 0xF1.toByte(), 0x90.toByte())
                     val buf = bleHeader.toByteArray() + dataBytes
                     mWriteQueue.add(buf)
+                }
+                TASK_GET_ECU_INFO -> {
+                    val bleHeader = BLEHeader()
+                    bleHeader.cmdSize = 3
+                    bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
+
+                    ECU_INFO_LIST.forEach { key, value ->
+                        val dataBytes = byteArrayOf(0x22.toByte()) + value
+                        val buf = bleHeader.toByteArray() + dataBytes
+                        mWriteQueue.add(buf)
+                    }
                 }
                 TASK_CLEAR_DTC -> {
                     //Send clear request
