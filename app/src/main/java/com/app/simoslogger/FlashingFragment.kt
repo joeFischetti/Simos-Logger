@@ -146,7 +146,7 @@ class FlashingFragment : Fragment() {
 
                     if(readBuff != null){
                         val pid = readBuff.copyOfRange(1,3)
-                        val value = readBuff.copyOfRange(2, readBuff.size)
+                        val value = String(readBuff.copyOfRange(3, readBuff.size))
 
                         var name: String = ""
 
@@ -155,9 +155,8 @@ class FlashingFragment : Fragment() {
                                 name = key
                             }
                         }
-
-                        val readString = String(readBuff)
-                        mViewModel.mConversationArrayAdapter?.add("$name: $readString")
+                        
+                        mViewModel.mConversationArrayAdapter?.add("$name: $value")
 
                         val btMessage = view?.findViewById<ListView>(R.id.bt_message)!!
                         btMessage.setSelection(btMessage.adapter.count -1)
