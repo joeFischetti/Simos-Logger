@@ -77,6 +77,7 @@ class BTService: Service() {
     private var mBluetoothDevice: BluetoothDevice? = null
     private var mConnectionThread: ConnectionThread? = null
     private var mLogWriteState: Boolean = false
+    private var flashingSubtask = FLASH_ECU_CAL_SUBTASK.NONE
 
     //Gatt additional properties
     private fun BluetoothGattCharacteristic.isReadable(): Boolean = containsProperty(BluetoothGattCharacteristic.PROPERTY_READ)
@@ -862,30 +863,156 @@ class BTService: Service() {
                     clearDTC()
                 }
                 TASK_FLASH_ECU_CAL -> {
-                    //Get the box code from the ecu
-                    //read in the file that we're flashing
-                    //compare the box code to the bin, make sure it matches
-                    //compress/encrypt
+                    DebugLog.i("TASK_FLASH_ECU_CAL", "Flashing step: $flashingSubtask")
 
-                    clearDTC()
-                    //Open extended diagnostic session
-                    //Check programming precondition, routine 0x0203
-                    //Tester present
-                    //Pass SA2SeedKey unlock_security_access(17)
-                    //Tester present
-                    //Write workshop tool log
-                    //  0xF15A = 0x20, 0x7, 0x17, 0x42,0x04,0x20,0x42,0xB1,0x3D,
-                    //Tester present
-                    //FLASH BLOCK
-                    //  erase block 0x01 0x05
-                    //  request download
-                    //  transfer data in blocks
-                    //  request transfer exit
-                    //  tester present
-                    //  run checksum start_routine(0x0202, data=bytes(checksum_data))
-                    //Verify programming dependencies, routine 0xFF01
-                    //Tester present
-                    //Reset ECU
+                    mTaskNext = TASK_FLASH_ECU_CAL
+
+
+                    when(flashingSubtask) {
+                        FLASH_ECU_CAL_SUBTASK.NONE ->{
+                            //Get the box code from the ecu
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.GET_ECU_BOX_CODE ->{
+                            //Get the box code from the ecu
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.READ_FILE_FROM_STORAGE -> {
+                            //read in the file that we're flashing
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.CHECK_FILE_COMPAT -> {
+                            //compare the box code to the bin, make sure it matches
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.CHECKSUM_BIN -> {
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+
+                        }
+                        FLASH_ECU_CAL_SUBTASK.COMPRESS_BIN -> {
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+
+                        }
+                        FLASH_ECU_CAL_SUBTASK.ENCRYPT_BIN -> {
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+
+                        }
+                        FLASH_ECU_CAL_SUBTASK.CLEAR_DTC -> {
+                            clearDTC()
+                            flashingSubtask = flashingSubtask.next()
+                        }
+                        FLASH_ECU_CAL_SUBTASK.OPEN_EXTENDED_DIAGNOSTIC -> {
+                            //Open extended diagnostic session
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.CHECK_PROGRAMMING_PRECONDITION -> {
+                            //Check programming precondition, routine 0x0203
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.SA2SEEDKEY -> {
+                            //Pass SA2SeedKey unlock_security_access(17)
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.WRITE_WORKSHOP_LOG -> {
+                            //Write workshop tool log
+                            //  0xF15A = 0x20, 0x7, 0x17, 0x42,0x04,0x20,0x42,0xB1,0x3D,
+
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.FLASH_BLOCK -> {
+                            //FLASH BLOCK
+                            //  erase block 0x01 0x05
+                            //  request download
+                            //  transfer data in blocks
+                            //  request transfer exit
+                            //  tester present
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.CHECKSUM_BLOCK -> {
+                            //  run checksum start_routine(0x0202, data=bytes(checksum_data))
+
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.VERIFY_PROGRAMMING_DEPENDENCIES -> {
+                            //Verify programming dependencies, routine 0xFF01
+
+                            if(true){
+                                flashingSubtask = flashingSubtask.next()
+                            }
+                            else{
+                                exitFlashSession()
+                            }
+                        }
+                        FLASH_ECU_CAL_SUBTASK.RESET_ECU -> {
+                            //Reset ECU
+                            exitFlashSession()
+                        }
+                    }
                 }
 
             }
@@ -915,6 +1042,21 @@ class BTService: Service() {
             }
         }
 
+        private fun sendTesterPresent(){
+            val bleHeader = BLEHeader()
+            bleHeader.cmdSize = 2
+            bleHeader.cmdFlags = BLE_COMMAND_FLAG_PER_CLEAR
+
+            val dataBytes = byteArrayOf(0x3e.toByte(), 0x02.toByte())
+            val buf = bleHeader.toByteArray() + dataBytes
+            mWriteQueue.add(buf)
+
+        }
+
+        private fun exitFlashSession(){
+            mTaskNext   = TASK_NONE
+            flashingSubtask = FLASH_ECU_CAL_SUBTASK.NONE
+        }
 
     }
 }

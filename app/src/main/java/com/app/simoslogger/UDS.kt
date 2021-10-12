@@ -584,3 +584,10 @@ object UDSLogger {
         return UDS_ERROR_UNKNOWN
     }
 }
+
+object UDSFlasher{
+    fun sa2SeedKey(buff: ByteArray): ByteArray{
+        return buff
+    }
+
+}

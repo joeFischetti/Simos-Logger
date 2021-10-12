@@ -48,6 +48,30 @@ val TASK_CLEAR_DTC      = 4
 val TASK_GET_ECU_INFO   = 5
 val TASK_FLASH_ECU_CAL  = 6
 
+enum class FLASH_ECU_CAL_SUBTASK {
+    NONE,
+    GET_ECU_BOX_CODE,
+    READ_FILE_FROM_STORAGE,
+    CHECK_FILE_COMPAT,
+    CHECKSUM_BIN,
+    COMPRESS_BIN,
+    ENCRYPT_BIN,
+    CLEAR_DTC,
+    OPEN_EXTENDED_DIAGNOSTIC,
+    CHECK_PROGRAMMING_PRECONDITION, //routine 0x0203
+    SA2SEEDKEY,
+    WRITE_WORKSHOP_LOG,
+    FLASH_BLOCK,
+    CHECKSUM_BLOCK, //0x0202
+    VERIFY_PROGRAMMING_DEPENDENCIES,
+    RESET_ECU;
+
+    fun next(): FLASH_ECU_CAL_SUBTASK {
+        val vals = FLASH_ECU_CAL_SUBTASK.values()
+        return vals[(this.ordinal+1) % vals.size];
+    }
+}
+
 val TASK_END_DELAY      = 1000
 val TASK_END_TIMEOUT    = 5000
 
